@@ -1,0 +1,157 @@
+python的subprocess模块
+    subprocess模块是python从2.4版本开始引入的模块。
+    主要用来取代 一些旧的模块方法，如os.system、os.spawn*、os.popen*、commands.*等。
+    subprocess通过子进程来执行外部指令，并通过input/output/error管道，
+    获取子进程的执行的返回信息。
+
+------------------------------------------------------------
+常用方法：
+
+1、subprocess.call()：父进程等待子进程完成，执行命令，并返回执行状态，
+    其中shell参数为False时，命令需要通过列表的方式传入，当shell为True时，可直接传入命令
+
+    >>> a = subprocess.call(['df','-hT'],shell=False)
+    Filesystem    Type    Size  Used Avail Use% Mounted on
+    /dev/sda2     ext4     94G   64G   26G  72% /
+    tmpfs        tmpfs    2.8G     0  2.8G   0% /dev/shm
+    /dev/sda1     ext4    976M   56M  853M   7% /boot
+
+    >>> a = subprocess.call('df -hT',shell=True)
+    Filesystem    Type    Size  Used Avail Use% Mounted on
+    /dev/sda2     ext4     94G   64G   26G  72% /
+    tmpfs        tmpfs    2.8G     0  2.8G   0% /dev/shm
+    /dev/sda1     ext4    976M   56M  853M   7% /boot
+
+
+
+2、subprocess.check_call()：用法与subprocess.call()类似，
+                        区别是，当返回值不为0时，直接抛出异常
+
+    父进程等待子进程完成 返回0
+    检查退出信息，如果returncode不为0，则举出错误subprocess.CalledProcessError，
+    该对象包含有returncode属性，可用try…except…来检查
+
+    >>> a = subprocess.check_call('df -hT',shell=True)
+    Filesystem    Type    Size  Used Avail Use% Mounted on
+    /dev/sda2     ext4     94G   64G   26G  72% /
+    tmpfs        tmpfs    2.8G     0  2.8G   0% /dev/shm
+    /dev/sda1     ext4    976M   56M  853M   7% /boot
+
+
+    >>> a = subprocess.check_call('dfdsf',shell=True)
+    /bin/sh: dfdsf: command not found
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+      File "/usr/lib64/python2.6/subprocess.py", line 502, in check_call
+        raise CalledProcessError(retcode, cmd)
+    subprocess.CalledProcessError: Command 'dfdsf' returned non-zero exit status 127
+
+
+3、subprocess.check_output()：用法与上面两个方法类似，区别是，如果当返回值为0时，
+        直接返回输出结果，如果返回值不为0，直接抛出异常。需要说明的是，该方法在python3.x中才有。
+
+
+
+4、subprocess.Popen()：
+
+class Popen(args, bufsize=0, executable=None, stdin=None, stdout=None, stderr=None,
+                    preexec_fn=None, close_fds=False, shell=False, cwd=None, env=None,
+                        universal_newlines=False, startupinfo=None, creationflags=0)
+
+    实际上，上面的几个函数都是基于Popen()的封装(wrapper)。
+    这些封装的目的在于让我们容易使用子进程。
+    当我们想要更个性化我们的需求的时候，就要转向Popen类，该类生成的对象用来代表子进程。
+    与上面的封装不同，Popen对象创建后，主程序不会自动等待子进程完成。
+    我们必须调用对象的wait()方法，父进程才会等待 (也就是阻塞block)，
+        >>> import subprocess
+        >>> child = subprocess.Popen('ping -c4 blog.linuxeye.com',shell=True)
+        >>> child.wait()
+        >>> print 'parent process'
+
+    在一些复杂场景中，我们需要将一个进程的执行输出作为另一个进程的输入。
+    在另一些场景中，我们需要先进入到某个输入环境，然后再执行一系列的指令等。
+    这个时候我们就需要使用到suprocess的Popen()方法。该方法有以下参数：
+
+        args：shell命令，可以是字符串，或者序列类型，如list,tuple。
+
+        bufsize：缓冲区大小，可不用关心
+
+        stdin,stdout,stderr：分别表示程序的标准输入，标准输出及标准错误
+
+        shell：与上面方法中用法相同
+
+        cwd：用于设置子进程的当前目录
+
+        env：用于指定子进程的环境变量。如果env=None，则默认从父进程继承环境变量
+
+        universal_newlines：不同系统的的换行符不同，当该参数设定为true时，则表示使用\n作为换行符
+            ------------------
+            示例1，在/root下创建一个suprocesstest的目录：
+                >>> a = subprocess.Popen('mkdir subprocesstest',shell=True,cwd='/root')
+
+
+            示例2，使用python执行几个命令：
+                import subprocess
+
+                obj = subprocess.Popen(["python"], stdin=subprocess.PIPE,
+                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                obj.stdin.write('print 1 \n')
+                obj.stdin.write('print 2 \n')
+                obj.stdin.write('print 3 \n')
+                obj.stdin.write('print 4 \n')
+                obj.stdin.close()
+
+                cmd_out = obj.stdout.read()
+                obj.stdout.close()
+                cmd_error = obj.stderr.read()
+                obj.stderr.close()
+
+                print cmd_out
+                print cmd_error
+
+
+            示例3，将一个子进程的输出，作为另一个子进程的输入：
+                import subprocess
+                child1 = subprocess.Popen(["cat","/etc/passwd"],
+                                                stdout=subprocess.PIPE)
+                child2 = subprocess.Popen(["grep","0:0"],stdin=child1.stdout,
+                                                        stdout=subprocess.PIPE)
+                out = child2.communicate()
+
+
+
+        其他方法：
+            import subprocess
+            child = subprocess.Popen('sleep 60',shell=True,stdout=subprocess.PIPE)
+            child.poll()    #检查子进程状态
+            child.kill()     #终止子进程
+            child.send_signal()    #向子进程发送信号
+            child.terminate()   #终止子进程
+
+---------------------------------------------------------------------
+子进程的文本流控制
+子进程的标准输入、标准输出和标准错误如下属性分别表示:
+
+代码如下:
+
+child.stdin
+child.stdout
+child.stderr
+
+可以在Popen()建立子进程的时候改变标准输入、标准输出和标准错误，
+并可以利用subprocess.PIPE将多个子进程的输入和输出连接在一起，构成管道(pipe)，如下2个例子：
+
+代码如下:
+    >>> import subprocess
+    >>> child1 = subprocess.Popen(["ls","-l"], stdout=subprocess.PIPE)
+    >>> print child1.stdout.read(),
+#或者child1.communicate()
+    >>> import subprocess
+    >>> child1 = subprocess.Popen(["cat","/etc/passwd"], stdout=subprocess.PIPE)
+    >>> child2 = subprocess.Popen(["grep","0:0"],stdin=child1.stdout, stdout=subprocess.PIPE)
+    >>> out = child2.communicate()
+
+subprocess.PIPE实际上为文本流提供一个缓存区。child1的stdout将文本输出到缓存区，
+随后child2的stdin从该PIPE中将文本读取走。
+child2的输出文本也被存放在PIPE中，直到communicate()方法从PIPE中读取出PIPE中的文本。
+注意：communicate()是Popen对象的一个方法，该方法会阻塞父进程，直到子进程完成
