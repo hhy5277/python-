@@ -47,7 +47,8 @@ logger.addFilter(IgnoreBackupLogFilter())
 ch = logging.StreamHandler()
 #ch.setLevel(logging.INFO)
 
-#fh = logging.FileHandler("web.log")
+#参数文件的路径名称，和编码方式
+#fh = logging.FileHandler("web.log",encoding="utf-8")
 #fh = handlers.RotatingFileHandler( "web.log",maxBytes=10,backupCount=3)
 fh = handlers.TimedRotatingFileHandler( "web.log",when="S",interval=5,backupCount=3)
 #fh.setLevel(logging.WARNING)
