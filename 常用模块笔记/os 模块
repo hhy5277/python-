@@ -1,0 +1,80 @@
+#OS模块
+
+#os模块就是对操作系统进行操作，使用该模块必须先导入模块：
+import os
+
+----
+#getcwd() 获取当前工作目录(当前工作目录默认都是当前文件所在的文件夹)
+result = os.getcwd()
+需要说明的是，当前目录并不是指脚本所在的目录，而是所运行脚本的目录。即入口文件的目录
+------
+os.listdir(path)  获得指定目录中的内容
+    in :os.listdir(os.getcwd())
+    out:['dde.pyd', 'license.txt']
+
+
+
+常用方法 os.xxx()
+------------------------------------------------------------------
+1>basename()   #去掉目录路径，返回文件名
+ >>>os.path.basename("/root/python/zip.py")
+'zip.py'
+
+
+2>dirname()    #去掉文件名，返回目录路径
+>>> os.path.dirname("/root/python/zip.py")
+'/root/python'
+
+3>join()       #将分离的各部分组合成一个路径名
+>>> os.path.join("/root/python/","zip.py")
+'/root/python/zip.py'
+
+
+4>split()      #返回目录路径和文件名的元组
+>>> os.path.split("/root/python/zip.py")
+('/root/python', 'zip.py')
+
+
+5>splitdrive() #返回驱动符号和路径字符元组
+>>> os.path.splitdrive("/root/python/zip.py")
+('', '/root/python/zip.py')
+
+
+6>splitext()   #返回文件名和扩展名元组
+>>>os.path.splitext("zip.py")
+('zip','.py')
+
+
+7>getatime()   #返回文件最近的访问时间
+>>> os.path.getatime("/root/python/zip.py")
+1297653596
+>>> time.ctime(1297653596)
+'Mon Feb 14 11:19:56 2011'
+8>getctime()   #返回文件的创建时间
+9>getmtime()   #返回文件的修改时间
+
+
+10>getsize()   #返回文件的大小单位为字节
+>>> os.path.getsize("zip.py")
+864
+
+
+11>exists()    #指定路径（文件或目录）是否存在
+>>> os.path.exists("/root/python/xukai.py")
+False
+>>> os.path.exists("/root/python/zip.py")
+True
+
+
+12>isabs()     #指定路径是否为绝对路径
+>>> os.path.isabs("/root/python/zip.py")
+True
+>>> os.path.isabs("root/python/zip.py")
+False
+
+
+13>isdir()     #指定路径是否存在且为一个目录
+
+14>isfile()    #指定的路径是否为一个文件
+
+15>samefile()  #两个路径名是否指向同一个文件
