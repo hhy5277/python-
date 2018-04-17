@@ -100,3 +100,6 @@
 >>> means = sorted(mean(choices(data, k=5)) for i in range(20))  # mean是求平均
 >>> print(f'The sample mean of {mean(data):.1f} has a 90% confidence '
       f'interval from {means[1]:.1f} to {means[-2]:.1f}')  # 这里的f用法
+
+
+-----------------------------------------------
