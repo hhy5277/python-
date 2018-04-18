@@ -1,0 +1,99 @@
+json
+-------------------------------------------------------
+import json
+
+# data = {
+#
+#     'roles':[
+#         {'role':'monster','type':'pig','life':50},
+#         {'role':'hero','type':'关羽','life':80},
+#     ]
+# }
+#
+-----------------
+
+# d = json.dumps(data)  #仅转成字符串
+
+# d2 = json.loads(d)    #转回来
+
+
+# f = open("test.json","w")
+# json.dump(data,f) #转成字符并写入文件  参数 数据+文件f 返回None
+
+
+
+
+# f = open("test.json","r")
+#
+# data = json.load(f)
+
+-------------------------------------------------------------------
+pickle模块：
+用于序列化的两个模块
+　　json：用于字符串和Python数据类型间进行转换
+　　pickle: 用于python特有的类型和python的数据类型间进行转换
+　　json提供四个功能：dumps,dump,loads,load
+　　pickle提供四个功能：dumps,dump,loads,load
+
+pickle可以存储什么类型的数据呢？
+所有python支持的原生类型：布尔值，整数，浮点数，复数，字符串，字节，None。
+由任何原生类型组成的列表，元组，字典和集合。
+函数，类，类的实例
+
+pickle模块中常用的方法有：
+1. pickle.dump(obj, file, protocol=None,)
+    必填参数obj表示将要封装的对象
+    必填参数file表示obj要写入的文件对象，file必须以二进制可写模式打开，即“wb”
+
+2. pickle.load(file,*,fix_imports=True, encoding="ASCII", errors="strict")
+
+    必填参数file必须以二进制可读模式打开，即“rb”，其他都为可选参数
+
+3. pickle.dumps(obj)：以字节对象形式返回封装的对象，不需要写入文件中
+
+4. pickle.loads(bytes_object): 从字节对象中读取被封装的对象，并返回
+
+    pickle模块可能出现三种异常：
+    1. PickleError：封装和拆封时出现的异常类，继承自Exception
+    2. PicklingError: 遇到不可封装的对象时出现的异常，继承自PickleError
+    3. UnPicklingError: 拆封对象过程中出现的异常，继承自PickleError
+
+--------------------------------------------------------------------------
+Python模块之shelve
+    shelve是python的自带model。 可以直接通过import shelve来引用。
+    shelve类似于一个存储持久化对象的持久化字典，即字典文件。
+    使用方法也类似于字典。
+
+----
+    保存对象至shelve文件中：
+    import shelve
+
+    wangzhe = dict(zip(['name','age'],['wangzhe',24]))
+    lijianguo = dict(zip(['name','age'],['lijianguo',25]))
+
+    db = shelve.open('shelveDict')  #打开一个文件
+    db['wangzhe'] = wangzhe   #向文件中添加内容，添加方式与给字典添加键值对相同
+    db['lijianguo'] = lijianguo
+    db.close()   #关闭文件
+
+----
+    从文件中读取对象：
+
+    import shelve
+    db = shelve.open('shelveDict')  #打开文件
+    print db['wangzhe']  #向从字典中获取键的方式一样读取内容
+    print db['lijianguo']  #结果为{'age': 25, 'name': 'lijianguo'}
+    db.close()  #关闭文件
+
+----
+    更新文件中的数据：
+    import shelve
+    db = shelve.open('shelveDict')  #打开文件
+    wangzhe = db['wangzhe']     #从文件中读取之前存储的对象
+    wangzhe['name'] = 'wang zhe'   #直接对对象进行修改
+    db['wangzhe'] = wangzhe     #重新存储至字典文件对象中
+    print db['wangzhe']     #结果如下{'age': 24, 'name': 'wang zhe'}
+    db.close()   #关闭文件
+
+
+
