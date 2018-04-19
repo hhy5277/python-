@@ -1,0 +1,62 @@
+{
+  "root": {
+    "userid": "201525001",
+    "username": "root",
+    "password": "dc76e9f0c0006e8f919e0c515c66dbba3982f785",
+    "balance": 13549.925,
+    "status": 0,
+    "userstatus": 0,
+    "loginstatus": 0,
+    "jurisdiction": 0
+  },
+  "admin": {
+    "userid": 20171214002959,
+    "username": "admin",
+    "password": "dc76e9f0c0006e8f919e0c515c66dbba3982f785",
+    "balance": 5600.0,
+    "status": 0,
+    "userstatus": 0,
+    "loginstatus": 1,
+    "jurisdiction": 2
+  },
+  "Alvin": {
+    "userid": 20171214193733,
+    "username": "Alvin",
+    "password": "dc76e9f0c0006e8f919e0c515c66dbba3982f785",
+    "balance": 31850.075,
+    "status": 0,
+    "userstatus": 0,
+    "loginstatus": 1,
+    "jurisdiction": 0
+  },
+  "Alex": {
+    "userid": 20171214200193,
+    "username": "Alex",
+    "password": "dc76e9f0c0006e8f919e0c515c66dbba3982f785",
+    "balance": 5000,
+    "status": 0,
+    "userstatus": 0,
+    "loginstatus": 1,
+    "jurisdiction": 2
+  },
+  "egon": {
+    "userid": 20171216176220,
+    "username": "egon",
+    "password": "dc76e9f0c0006e8f919e0c515c66dbba3982f785",
+    "balance": 5000,
+    "status": 0,
+    "userstatus": 0,
+    "loginstatus": 1,
+    "jurisdiction": 2
+  },
+  "Jack": {
+    "userid": 20171216228356,
+    "username": "Jack",
+    "password": "dc76e9f0c0006e8f919e0c515c66dbba3982f785",
+    "balance": 15000,
+    "status": 0,
+    "userstatus": 0,
+    "loginstatus": 1,
+    "jurisdiction": 2
+  }
+}
