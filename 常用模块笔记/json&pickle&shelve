@@ -26,6 +26,7 @@ import json
 # f = open("test.json","r")
 #
 # data = json.load(f)
+注意：test.json必须是个合法的json文件,不合法和报错比如空文件
 
 -------------------------------------------------------------------
 pickle模块：
