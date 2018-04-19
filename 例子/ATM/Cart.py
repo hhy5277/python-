@@ -141,7 +141,7 @@ def main():
                     break
                 if str(contents) == "1":
                     # 余额
-                    user = User().ObtainUsername()
+                    user = User().ObtainUsername() #返回用户账号
                     if user:
                         print("余额：%s" % (float(Order().ObtainBalance(user))))
                 elif str(contents) == "2":

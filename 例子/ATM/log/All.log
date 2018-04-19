@@ -166,3 +166,7 @@
 2018-04-19 12:40:22,767 登录成功！ 30 WARNING C:\Users\lxm\Desktop\文档\python-\例子\ATM\module\Logs.py Logs.py Logs __write 52 登录成功！
 2018-04-19 12:40:22,767 登录成功！ 40 ERROR C:\Users\lxm\Desktop\文档\python-\例子\ATM\module\Logs.py Logs.py Logs __write 53 登录成功！
 2018-04-19 12:40:22,767 登录成功！ 20 INFO C:\Users\lxm\Desktop\文档\python-\例子\ATM\module\Logs.py Logs.py Logs __write 55 登录成功！
+2018-04-19 19:49:49,407 登录成功！ 50 CRITICAL E:\python-\例子\ATM\module\Logs.py Logs.py Logs __write 51 登录成功！
+2018-04-19 19:49:49,423 登录成功！ 30 WARNING E:\python-\例子\ATM\module\Logs.py Logs.py Logs __write 52 登录成功！
+2018-04-19 19:49:49,423 登录成功！ 40 ERROR E:\python-\例子\ATM\module\Logs.py Logs.py Logs __write 53 登录成功！
+2018-04-19 19:49:49,423 登录成功！ 20 INFO E:\python-\例子\ATM\module\Logs.py Logs.py Logs __write 55 登录成功！
