@@ -50,4 +50,4 @@ class Login:
     def user_login(self):
         username = input("用户名：").strip()
         password = input("密码：").strip()
-        self.__login(username,password)
+        return self.__login(username,password)   # password应该加密

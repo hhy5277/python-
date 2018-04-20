@@ -56,7 +56,7 @@ class Cookie:
         else:
             return False
 
-    ''' 获取当前系统Cookie文件夹路径 '''
+    ''' 获取当前系统Cookie 文件夹 路径 '''
 
     def __getCookieDirPath(self):
         Wpaths = "C:\\.cookie"
@@ -68,7 +68,7 @@ class Cookie:
         else:
             return False
 
-    ''' 获取当前系统Cookie文件路径 '''
+    ''' 获取当前系统Cookie 文件 路径 '''
 
     def __getCookiefilePath(self):
         paths = self.__getCookieDirPath()

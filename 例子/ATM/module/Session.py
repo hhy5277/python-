@@ -43,7 +43,7 @@ class Session(object):
                 if jsonMakes["expiry"]:
                     Times = time.time() - int(expiryTime)
                     mTimes = os.stat(self.__sessionPath + self.__sep + "session_" + item + ".json").st_mtime
-                    if int(Times) > int(mTimes):
+                    if int(Times) > int(mTimes):  # 过期了
                         count = True
                     else:
                         return jsonMakes["user"]
