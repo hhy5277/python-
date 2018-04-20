@@ -13,8 +13,9 @@ print(hash.hexdigest())#拿到加密字符串
 # hash2.update(bytes('admin',encoding='utf-8'))
 # print(hash.hexdigest())
 
--------
-hash3 = hashlib.md5(bytes('abd',encoding='utf-8'))
+--------------------------------------
+    hash3 = hashlib.md5(bytes('abd',encoding='utf-8')) #(带参数)
+
 ''' 如果没有参数，所以md5遵守一个规则，生成同一个对应关系，如果加了参数，
 就是在原先加密的基础上再加密一层，这样的话参数只有自己知道，防止被撞库，
 因为别人永远拿不到这个参数

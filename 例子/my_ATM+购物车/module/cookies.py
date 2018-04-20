@@ -116,12 +116,15 @@ class Cookie:
 
         cookie_path = self.__getCookiefilePath()
         if cookie_path:
-            with open(cookie_path) as f:
+            with open(cookie_path,"r") as f:
                 #  继续探索
                 result = json.load(f)
                 if result["cookie"] == self.__MakeCookie(item):
                     if result["status"]:
-                        count = True
+                        if self.__cookieIsUtilize():
+                            return result["sessionid"]
+                        else:
+                            return False
                     else:
                         return False
                 else:
@@ -130,8 +133,3 @@ class Cookie:
         else:
             return False
 
-        if count:
-            if self.__cookieIsUtilize():
-                return json.loads(read)["sessionid"]
-            else:
-                return False

@@ -4,10 +4,12 @@
 
 import hashlib
 
+
 class Handlehash(object):
     '''
         加密|解密 ：类
     '''
+
     def encode_hash(self, password):
         if isinstance(password, str):
             import hashlib
@@ -17,10 +19,11 @@ class Handlehash(object):
         else:
             return False
 
-    def decode_hash(self,new = None,old = None):
-        new_pasd = self.Jam_hash(new)
-        old_pasd = self.Jam_hash(old)
-        if new_pasd == old_pasd:
-            return True
-        else:
-            return False
+    #
+    # def decode_hash(self,new = None,old = None):
+    #     new_pasd = self.encode_hash(new)
+    #     old_pasd = self.encode_hash(old)
+    #     if new_pasd == old_pasd:
+    #         return True
+    #     else:
+    #         return False
