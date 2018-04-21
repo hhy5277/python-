@@ -116,10 +116,10 @@ class Order(object):
         if user:
             userStatus = self.__ControlStatus(to)
             if userStatus:
-                if int(operation) == 3:
+                if int(operation) == 3: #默认转账
                     service = self.ServiceCharge(float(balance), float(rate))
                     money = float(balance) - float(service)
-                elif int(operation) == 1:
+                elif int(operation) == 1: #还款
                     money = float(balance)
                     service = float(self.ServiceCharge(balance, rate))
 

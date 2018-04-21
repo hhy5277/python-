@@ -2,6 +2,7 @@
 # __author__ = "LXM"
 # Date: 2018/4/18 0018
 
+import re
 from module.user_manage import UserManage
 from module.handle_order import Order
 
@@ -29,16 +30,16 @@ def main():
                     username = UserManage().obtain_username()
                     if username:
                         print("余额为："+str(Order().ObtainBalance(username)))
-                else:
-                    print("输入错误！请重新输入")
-                    break
-            elif str(content) == "3":
-                contents = input(
-                    "[1]：添加商品，[2]：删除商品，[3]：下架商品，[4]：上架商品，[5]：冻结商品，[6]：解冻商品,[q/Q退出]").strip()
-                if contents == "q" or contents == "Q":
-                    break
-                if str(contents) == "1":
-                    pass
+
+                if str(contents) == "2":
+                    user = UserManage().obtain_username()
+                    if user:
+                        menoy = input("menoy：").strip()
+                        if re.search("^\d+$", menoy):
+                            # Order().Repayment(float(menoy))
+                            print(menoy)
+                        else:
+                            print("您输入的数据不合法")
                 else:
                     print("输入错误！请重新输入")
                     break
