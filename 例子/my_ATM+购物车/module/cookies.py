@@ -90,8 +90,8 @@ class Cookie:
         else:
             return False
 
-    def __MakeCookie(self, key):
-        return Handlehash().encode_hash("cookie_" + key)
+    # def __MakeCookie(self, key):
+    #     return Handlehash().encode_hash("cookie_" + key)
 
     ''' 判断Cookie是否有效(过期时间是否超过'''
 
@@ -101,9 +101,9 @@ class Cookie:
         count = False
         with open(cookie_path, "r") as f:
             reads = json.loads(f.read())
-            times = reads["times"]
-            Ttime = os.stat(cookie_path).st_mtime  # 最后一次修改时间
-            if int(time.time()) - times > Ttime:
+            times = reads["times"] #保质期
+            Ttime = reads["createtime"] # 创建时间
+            if int(time.time()) - times > Ttime: #失效
                 count = True
             else:
                 count = False

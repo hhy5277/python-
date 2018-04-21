@@ -5,25 +5,17 @@
 import hashlib
 
 
-class Handlehash(object):
+class Handlehash:
     '''
-        加密|解密 ：类
+        加密| ：类
     '''
+    def __init__(self):
+        pass
 
-    def encode_hash(self, password):
+    def encode_hash_sha1(self, password):
         if isinstance(password, str):
-            import hashlib
             hs = hashlib.sha1()
             hs.update(bytes(password, encoding="utf-8"))
             return hs.hexdigest()
         else:
             return False
-
-    #
-    # def decode_hash(self,new = None,old = None):
-    #     new_pasd = self.encode_hash(new)
-    #     old_pasd = self.encode_hash(old)
-    #     if new_pasd == old_pasd:
-    #         return True
-    #     else:
-    #         return False

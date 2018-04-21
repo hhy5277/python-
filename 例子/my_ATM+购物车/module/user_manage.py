@@ -10,17 +10,9 @@ class UserManage(object):
     def __init__(self):
         pass
 
-    '''从cookie中取出（判断是否有效）sessionid的值;如果不存在则登录
-       如果存在则用sessionid在DB_session（判断是否有效）中取出用户的用户名
-       再用用户面去user.json中获取用户的所有信息
-    '''
 
     def obtain_username(self):
         sessionid = Cookie()["sessionid"]  # cookie __getitem()
-        '''
-            如果sessionid存在 则用sessionid在Session()中取出用户名
-            如果不存在则进入登录流程
-        '''
         if sessionid:
             return Session()[sessionid]
         else:

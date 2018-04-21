@@ -3,6 +3,7 @@
 # Date: 2018/4/18 0018
 
 from module.user_manage import UserManage
+from module.handle_order import Order
 
 
 def main():
@@ -25,10 +26,9 @@ def main():
                 if contents == "q" or contents == "Q":
                     break
                 if str(contents) == "1":
-                    user = UserManage().obtain_username()
-                    print(user,"最后获取的username")
-                    if user:
-                        pass
+                    username = UserManage().obtain_username()
+                    if username:
+                        print("余额为："+str(Order().ObtainBalance(username)))
                 else:
                     print("输入错误！请重新输入")
                     break

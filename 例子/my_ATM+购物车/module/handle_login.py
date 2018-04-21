@@ -1,5 +1,6 @@
 import json, os
 from .session import Session
+from .handle_hash import Handlehash
 
 class Login:
     def __init__(self):
@@ -40,4 +41,5 @@ class Login:
     def user_login(self):
         username = input("用户名：").strip()
         password = input("密码：").strip()
-        return self.__login(username,password)   # password应该加密
+        encodePassword=Handlehash().encode_hash_sha1(password)
+        return self.__login(username,encodePassword)   # password应该加密
