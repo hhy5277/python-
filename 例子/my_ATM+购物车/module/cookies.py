@@ -5,21 +5,34 @@ import os, json, time
 from .handle_hash import Handlehash
 
 '''
-cookie 数据结构
+cookie 数据结构  主要是利用 sessionid字段
     {
-    "cookie": "5faa7929070a00ea62cb2e845bd5b4fd2c04bbc5", 
+    "cookie": "5faa7929070a00ea62cb2e845bd5b4fd2c04bbc5",  #貌似无用 删除吧
     "sessionid": "6ac7d6337143a3932d9de190044ecd2691d3b4f4", 
     "times": 3600, 
     "status": true,
     "createtime": 1524138589.4231675
      }
+     
+     设置cookie时我们总是给"sessionid"字段赋值
+'''
+'''
+    一个cookie对象应该包含的基本函数
+    1、判断放cookie文件的文件夹是否存在
+    2、生成cookie文件夹
+    3、获取cookie 文件夹 和 文件 路径
+    4、判断Cookie是否有效
+    
+    ...
+    
+    
 '''
 
 
 class Cookie:
     def __init__(self):
         self.__systemType = os.name
-        self.__create_dir()
+        self.__create_dir()  # 使用cookie必须调用
 
     ''' 判断需要的 文件夹 是否存在 '''
 
@@ -34,7 +47,6 @@ class Cookie:
     def __create_dir(self):
         if self.__systemType == "nt":
             paths = "C:\\.cookie"
-            print(self.__dir_is_exist(paths))
             if not self.__dir_is_exist(paths):
                 try:
                     os.makedirs(paths)
@@ -95,7 +107,6 @@ class Cookie:
                 count = True
             else:
                 count = False
-        print(count, "count")
         if count:
             with open(cookie_path, "w") as f:
                 reads["status"] = False
@@ -116,15 +127,12 @@ class Cookie:
 
         cookie_path = self.__getCookiefilePath()
         if cookie_path:
-            with open(cookie_path,"r") as f:
+            with open(cookie_path, "r") as f:
                 #  继续探索
                 result = json.load(f)
-                if result["cookie"] == self.__MakeCookie(item):
-                    if result["status"]:
-                        if self.__cookieIsUtilize():
-                            return result["sessionid"]
-                        else:
-                            return False
+                if result["status"]:
+                    if self.__cookieIsUtilize():
+                        return result["sessionid"]
                     else:
                         return False
                 else:
@@ -133,3 +141,21 @@ class Cookie:
         else:
             return False
 
+    '''设置cookie值'''
+
+    def __setitem__(self, key, value):
+        """
+        :param key: "sessionid"
+        :param value: " sessionid 对应的值"
+        """
+        cookieFilePath = self.__getCookiefilePath()  #文件不存在返回False
+        if not cookieFilePath:
+            cookieFilePath=os.path.join(self.__getCookieDirPath(), "cookie.json")
+        # cookieId = self.__MakeCookie(key)
+        if cookieFilePath:
+            cookie = {key: value, "times": 3600, "status": True, "createtime": time.time()}
+            with open(cookieFilePath,"w") as f:
+                json.dump(cookie,f)
+                return True
+        else:
+            return False

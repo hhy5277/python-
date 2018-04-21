@@ -3,6 +3,7 @@
 # Date: 2018/4/19 0019
 from .cookies import Cookie
 from .handle_login import Login
+from .session import Session
 
 
 class UserManage(object):
@@ -16,26 +17,17 @@ class UserManage(object):
 
     def obtain_username(self):
         sessionid = Cookie()["sessionid"]  # cookie __getitem()
-        print(sessionid, "sessionid")
-        # if sessionid:
-        #     Login().UserStatus(Session()[sessionid])
-        #     return Session()[sessionid]
-        # else:
-        #     print("请登录！")
-        #     if Login().getLogin():
-        #         sessionid = Cookie()["sessionid"]
-        #         Login().UserStatus(Session()[sessionid])
-        #         return Session()[sessionid]
-        #     else:
-        #         return False
-
         '''
             如果sessionid存在 则用sessionid在Session()中取出用户名
             如果不存在则进入登录流程
         '''
         if sessionid:
-            pass
+            return Session()[sessionid]
         else:
             #  登录流程 ：
             print("进入登录流程")
-            Login().user_login()
+            if Login().user_login():
+                sessionid = Cookie()["sessionid"]
+                return Session()[sessionid]
+            else:
+                return False

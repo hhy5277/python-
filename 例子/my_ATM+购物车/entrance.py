@@ -26,6 +26,9 @@ def main():
                     break
                 if str(contents) == "1":
                     user = UserManage().obtain_username()
+                    print(user,"最后获取的username")
+                    if user:
+                        pass
                 else:
                     print("输入错误！请重新输入")
                     break
