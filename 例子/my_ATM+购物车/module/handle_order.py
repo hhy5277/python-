@@ -75,8 +75,8 @@ class Order:
 
 
                 if float(self.ObtainBalance(user)) >= float(balance):
-                    A = self.ChangeUser(user=user, menoy=money)
-                    B = self.ChangeUser(user=to, menoy=money, mode="+")
+                    A = self.ChangeUserBalance(user=user, menoy=money)
+                    B = self.ChangeUserBalance(user=to, menoy=money, mode="+")
                     if A and B:
                         return True
                     else:
@@ -107,7 +107,7 @@ class Order:
             menoy：金额
             mode：交易方式
     '''
-    def ChangeUser(self,user,menoy, mode = "-"):
+    def ChangeUserBalance(self,user,menoy, mode = "-"):
         with open(self.__DB_user, "r") as f:
             users = json.loads(f.read())
 

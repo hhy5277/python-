@@ -40,6 +40,10 @@ def main():
                             print(menoy)
                         else:
                             print("您输入的数据不合法")
+
+                if str(contents) == "3":
+                    pass
+
                 else:
                     print("输入错误！请重新输入")
                     break
