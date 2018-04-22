@@ -50,6 +50,7 @@ class Session:
         # 逻辑  通过sessionid在user.json中获取对应的username
         # 再用username 再DB_session中判断是否过去，未过期则返回该用户所有数据
         '''
+        
 
         :param sessionid: cookie中sessionid的值
         :return:返回username 账号
