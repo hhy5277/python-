@@ -9,7 +9,7 @@ from module.handle_order import Order
 
 def main():
     while True:
-        content = input("What are you going to do([1]Shopping 、[2]ATM(User) or [3]Goods)?").strip()
+        content = input("What are you going to do([1]Shopping 、[2]ATM(优秀答案(User) or [3]Goods)?").strip()
         while True:
             if str(content) == "1":
                 contents = input(
