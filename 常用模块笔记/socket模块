@@ -61,3 +61,31 @@ Python 提供了两个基本的 socket 模块。
 
     s.close()关闭套接字。
 
+-------------------------------------------------------
+最基本例子
+-------客户端
+s =socket.socket(socket.AF_INET,socket.SOCK_STREAM) #获取指定类型套接字实例
+s.connect(("127.0.0.1","8080")) #拨号,参数元祖
+
+s.send("hello".encode("utf-8")) #发送二进制数据流
+data = s.recv(1024)  #等待接受消息
+
+s.close()
+
+
+--------服务端
+s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+s.bind(("127.0.0.1","8080")) #服务端绑定ip:port
+s.listen(5)  最大挂起数 5
+
+conn,client_addr = s.accept()  #等待 接收客户端的请求
+#这是一个等待过程，返回一个新的套接字对象和客户端的地址
+#利用conn这个新的套接字recv或者send客户端数据
+
+data = conn.recv(1024)  #接收到bites数据
+
+conn.send(data.upper())
+
+#分别关掉两个套接字对象
+conn.close()
+s.close()
