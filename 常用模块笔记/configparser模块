@@ -1,0 +1,101 @@
+一，首先说说 所谓 ini 文件以及 ini的文件格式：
+
+ini 文件其实就是所谓的初始化配置文件，一般的格式为：
+
+[SECTION0]
+
+key0 = value0
+
+key1 = value1
+
+。
+
+。
+
+。
+
+[SECTION1]
+
+key0 = value0
+
+key1 = value1
+
+
+
+二，configparser包
+
+ConfigParser 包 是创建一个管理对象，再把文件 read进去，
+做了其他操作后，再 以打开方式打开文件，写回文件里。
+（注意！是以打开方式！打开方式！不是追加方式！）
+
+因为 它本身的机制就是会先把文件复制一份，进行操作后，再整个文件内容写回文件里的。
+
+
+三，相关操作：（一个 item 由 KEY和VALUE组成）
+
+cfg = configparser.ConfigParser()
+#创建一个管理对象 cfg
+
+cfg.read（file_path）
+#把一个 ini 文件读到 cfg 中
+
+se_list = cfg.sections()
+#用一个list 存放 ini 文件中的所有 SECTIONS
+
+item = cfg.items(SECTION)
+#用一个 列表item 存放 一个SECTION 中的所有 items（KEY--VALUE）
+
+cfg.remove_option(se,key)
+#删除一个 SECTION 中的一个 item（以键值KEY为标识）
+
+cfg.remove_section（se）
+#删除一个 SECTION
+
+cfg.add_section（se）
+#增加一个 SECTION
+
+cfg.set（se，key，value）
+#往一个 SECTION 中增加 一个 item（KEY--VALUE）
+
+cfg.wrtie(fp)
+#往文件描述符指向的文件中 写入修改后的内容
+------------------------------------------------------
+import configparser
+
+conf = configparser.ConfigParser()
+
+conf.read("conf.ini")
+
+# print(conf.sections())
+# print(conf.default_section)
+
+#print(list(conf["bitbucket.org"].keys()))
+# print(conf["bitbucket.org"]['User'])
+
+# for k,v in conf["bitbucket.org"].items():
+#     print(k,v)
+
+# if 'user' in conf["bitbucket.org"]:
+#     print('in ')
+
+-----conf.ini-----------------------------------------------------
+[DEFAULT]
+ServerAliveInterval = 45
+Compression = yes
+CompressionLevel = 9
+ForwardX11 = yes
+
+[bitbucket.org]
+User = hg
+MaxUsers = 100
+
+[topsecret.server.com]
+Port = 50022
+ForwardX11 = no
+
+----
+defaults()	返回包含实例范围默认值的字典。
+sections()	返回可用的section的列表;默认section不包括在列表中
+has_section(section)	指示指定的section是否出现在配置中。默认的section未被确认
+options(section)	返回指定section中可用的选项列表。
+has_option(section, option)	如果给定的section存在，并且包含给定的选项，则返回True;否则返回False
