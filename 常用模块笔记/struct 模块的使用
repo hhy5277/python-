@@ -1,0 +1,32 @@
+import struct
+import json
+
+
+--------------------------------
+
+把对应类型的数据转化为二进制流数据用于网络传输
+不同类型数据pack出来的二进制流数据长度不同
+i --> 4个字节
+
+
+----------------------
+ res=struct.pack('i',12300000000)
+ res=struct.pack('l',111232301212312312312312000000)
+ print(res,len(res))
+------------------------------
+
+header_dic = {
+    'filename': 'a.txt',
+    'md5': 'xxdxxx',
+    'total_size': 33333333333333123123123
+}
+
+header_json = json.dumps(header_dic)
+# print(type(header_json))
+header_bytes=header_json.encode('utf-8')
+
+# print(type(header_bytes))
+
+# print(len(header_bytes))
+
+struct.pack('i',len(header_bytes))
