@@ -1,0 +1,735 @@
+进程： 主进程没有结束肯定有子进程没有结束
+
+
+-------------------------------开启进程的方法一
+from multiprocessing import Process
+import time
+
+def task(name):
+    print("%s is running"%name)
+    time.sleep(1)
+    print("%s is done" % name)
+
+if __name__ == '__main__':
+    p1=Process(target=task,args=("子进程1",))   #window中要在main里调用
+    p1.start()
+    print("zhu")
+
+---------------------------------方式二
+from multiprocessing import Process
+import time
+
+class MyProcess(Process):
+    def __init__(self,name):
+        super().__init__()
+        self.name=name
+
+    def run(self):
+        print('%s is running' %self.name)
+        time.sleep(3)
+        print('%s is done' %self.name)
+
+
+if __name__ == '__main__':
+    p=MyProcess('子进程1')
+    p.start()
+    print('主')
+
+------------------------------------------查看pid
+          1: os.getpid()
+          2:from multiprocessing import current_process
+            current_process().pid
+
+
+
+
+ -------------------------------------------进程的常用属性和方法
+ join()  等待进程运行完毕
+ start()  开始进程
+ p.daemon=True  设置进程为主进程的守护进程，主进程完成守护进程也同时结束
+                主进程不会等待子进程结束才结束，主线程结束相当于主进程结束
+
+---------------------------------------------进程的互斥锁
+from multiprocessing import Lock
+mutex=Lock()  #mutex对象以参数形式传入到进程中
+p=Process(target=task,args=('路人%s' %i,mutex))
+
+    def task(name,mutex):
+        search(name)
+        mutex.acquire()  #上锁
+        get(name)
+        mutex.release()  #解锁
+
+
+---------------------------------------------互斥锁和join的区别
+join是等待task任务函数完成
+互斥锁是设置task内局部任务的等待
+
+
+
+----------------------------------------队列的使用
+from multiprocessing import Queue
+q=Queue(3)
+q.put('hello')
+q.put({'a':1})
+q.put([3,3,3,])
+print(q.full())  #true
+
+print(q.get())
+print(q.get())
+print(q.get())
+print(q.empty()) #true
+
+print(q.get())   #空了还取就会卡住等待 ，
+
+-------------------------------------生产者消费者模型
+from multiprocessing import Process,Queue
+import time
+
+def producer(q):
+    for i in range(10):
+        res='包子%s' %i
+        time.sleep(0.5)
+        print('生产者生产了%s' %res)
+
+        q.put(res)
+
+def consumer(q):
+    while True:
+        res=q.get()
+        if res is None:break
+        time.sleep(1)
+        print('消费者吃了%s' % res)
+
+if __name__ == '__main__':
+    #容器
+    q=Queue()
+
+    #生产者们
+    p1=Process(target=producer,args=(q,))
+    p2=Process(target=producer,args=(q,))
+    p3=Process(target=producer,args=(q,))
+
+    #消费者们
+    c1=Process(target=consumer,args=(q,))
+    c2=Process(target=consumer,args=(q,))
+
+    p1.start()
+    p2.start()
+    p3.start()
+    c1.start()
+    c2.start()
+
+    p1.join()
+    p2.join()
+    p3.join()
+    q.put(None)
+    q.put(None)
+    print('主')
+    #只是一种模型  实际不会这样用
+
+-------------------------------------------------JoinableQueue
+q.task_done()：使用者使用此方法发出信号，表示q.get()的返回项目已经被处理。
+如果调用此方法的次数大于从队列中删除项目的数量，将引发ValueError异常
+
+q.join():生产者调用此方法进行阻塞，直到队列中所有的项目均被处理。
+阻塞将持续到队列中的每个项目均调用q.task_done（）方法为止
+
+from multiprocessing import Process,JoinableQueue
+import time
+
+def producer(q):
+    for i in range(2):
+        res='包子%s' %i
+        time.sleep(0.5)
+        print('生产者生产了%s' %res)
+
+        q.put(res)
+    q.join()  #意思就是全部生产完毕后就开始对每个产品进行阻塞，
+            #所有的产品都task_done()后producer函数才结束，意味着什么呢：
+            所有消费者都完成后，q.join()才能打开阻塞，打开阻塞后
+            生成者才能完成，生产者完成消费者肯定也完成了，但此时消费者还在循环中，
+            消费者是子进程卡在循环里，所以主进程也不会结束（因为主主进程join()了的）
+            所以把消费者变成守护进程，主进程结束把卡在循环中的子进程也结束掉
+
+def consumer(q):
+    while True:
+        res=q.get()
+        if res is None:break
+        time.sleep(1)
+        print('消费者吃了%s' % res)
+        q.task_done()
+
+
+if __name__ == '__main__':
+    #容器
+    q=JoinableQueue()
+
+    #生产者们
+    p1=Process(target=producer,args=(q,))
+    p2=Process(target=producer,args=(q,))
+    p3=Process(target=producer,args=(q,))
+
+    #消费者们
+    c1=Process(target=consumer,args=(q,))
+    c2=Process(target=consumer,args=(q,))
+    c1.daemon=True
+    c2.daemon=True
+
+    p1.start()
+    p2.start()
+    p3.start()
+    c1.start()
+    c2.start()
+
+
+    p1.join()
+    p2.join()
+    p3.join()
+    print('主')
+
+
+
+
+=============================================================================================
+
+=============================================================================================
+线程：开启线程的两种方式
+ import time
+ import random
+ from threading import Thread
+
+ def piao(name):
+     print('%s piaoing' %name)
+     time.sleep(random.randrange(1,5))
+     print('%s piao end' %name)
+
+ if __name__ == '__main__':
+     t1=Thread(target=piao,args=('egon',))
+     t1.start()
+     print('主线程')
+
+
+
+import time
+import random
+from threading import Thread
+
+class MyThread(Thread):
+    def __init__(self,name):
+        super().__init__()
+        self.name=name
+
+    def run(self):
+        print('%s piaoing' %self.name)
+
+        time.sleep(random.randrange(1,5))
+        print('%s piao end' %self.name)
+
+if __name__ == '__main__':
+    t1=MyThread('egon')
+    t1.start()
+    print('主')
+
+
+--------------------------进程和线程的区别
+进程的开销大于线程
+同一进程内的多个线程共享该进程的地址空间，线程数据共享，pid相同
+
+
+-----------------------Thread对象的属性和方法
+from threading import Thread,currentThread,active_count,enumerate
+import time
+
+def task():
+    print('%s is ruuning' %currentThread().getName())
+    time.sleep(2)
+    print('%s is done' %currentThread().getName())
+
+if __name__ == '__main__':
+    t=Thread(target=task,name='子线程1')
+    t.start()
+    # t.setName('儿子线程1') 设置线程名字
+    # t.join()      #等待线程执行结束
+    # print(t.getName())  #获取线程名称
+    # currentThread().setName('主线程')
+    # print(t.isAlive())  #判断线程isAlive
+
+
+    # print('主线程',currentThread().getName())
+
+    # t.join()
+    # print(active_count()) #当前进程中线程个数
+    print(enumerate())   #当前进程中线程的对象list
+
+
+
+ ---------------------------------守护线程
+ 主线程结束守护线程也结束   主线程结束进程也结束，主进程结束，主进程不一定结束。
+ t1.daemon=True   线程的daemon为true就是守护线程
+
+
+ --------------------------------线程的互斥锁
+ from threading import Thread,Lock   #跟进程互斥锁相似
+    import time
+
+n=100
+
+def task():
+    global n
+    mutex.acquire()
+    temp=n
+    time.sleep(0.1)
+    n=temp-1
+    mutex.release()
+
+if __name__ == '__main__':
+    mutex=Lock()   #线程的变量是共享的，所以不用像进程那样吧mutex传入到线程里
+    t_l=[]
+    for i in range(100):
+        t=Thread(target=task)
+        t_l.append(t)
+        t.start()
+
+    for t in t_l:
+        t.join()
+
+    print('主',n)
+
+
+-------------------------------------------------------------------------------
+                                                 关于GIL golbal interpreter lock
+cpython解释器是把python代码当成字符串参数执行的。每次执行一个python程序，相当于会加一个解释器锁
+....
+
+
+计算密集型：用多进程
+from multiprocessing import Process
+from threading import Thread
+import os,time
+def work():
+    res=0
+    for i in range(100000000):
+        res*=i
+
+
+if __name__ == '__main__':
+    l=[]
+    # print(os.cpu_count()) #本机为8核
+    start=time.time()
+    for i in range(8):
+        # p=Process(target=work) #耗时8s多
+        p=Thread(target=work) #耗时37s多
+        l.append(p)
+        p.start()
+    for p in l:
+        p.join()
+    stop=time.time()
+    print('run time is %s' %(stop-start))
+
+
+# IO密集型：用多线程
+from multiprocessing import Process
+from threading import Thread
+import threading
+import os,time
+
+def work():
+    time.sleep(2)
+
+if __name__ == '__main__':
+    l=[]
+    # print(os.cpu_count()) #本机为4核
+    start=time.time()
+    for i in range(400):
+        # p=Process(target=work) #耗时2.697多,大部分时间耗费在创建进程上
+        p=Thread(target=work) #耗时2.02多
+        l.append(p)
+        p.start()
+    for p in l:
+        p.join()
+    stop=time.time()
+    print('run time is %s' %(stop-start))
+
+
+------------------------------------------------死锁现象与递归锁
+# 死锁  ：相当于A锁等B relase 而B锁等待A锁relase。产生了矛盾 所以卡起了
+from threading import Thread,Lock
+import time
+
+mutexA=Lock()
+mutexB=Lock()
+
+class MyThread(Thread):
+    def run(self):
+        self.f1()
+        self.f2()
+
+    def f1(self):
+        mutexA.acquire()
+        print('%s 拿到了A锁' %self.name)
+
+        mutexB.acquire()
+        print('%s 拿到了B锁' %self.name)
+        mutexB.release()
+
+        mutexA.release()
+
+
+    def f2(self):
+        mutexB.acquire()
+        print('%s 拿到了B锁' % self.name)
+        time.sleep(0.1)
+
+        mutexA.acquire()
+        print('%s 拿到了A锁' % self.name)
+        mutexA.release()
+
+        mutexB.release()
+
+if __name__ == '__main__':
+    for i in range(10):
+        t=MyThread()
+        t.start()
+
+
+互斥锁只能acquire一次
+from threading import Thread,Lock
+
+mutexA=Lock()
+
+mutexA.acquire()
+mutexA.release()
+
+
+# 递归锁:可以连续acquire多次，每acquire一次计数器+1，只有计数为0时，才能被抢到acquire
+（才能被另一个线程抢到）
+from threading import Thread,RLock
+import time
+
+mutexB=mutexA=RLock()   #此时A锁和B锁是同一把锁
+
+class MyThread(Thread):
+    def run(self):
+        self.f1()
+        self.f2()
+
+    def f1(self):
+        mutexA.acquire()
+        print('%s 拿到了A锁' %self.name)
+
+        mutexB.acquire()
+        print('%s 拿到了B锁' %self.name)
+        mutexB.release()
+
+        mutexA.release()
+
+
+    def f2(self):
+        mutexB.acquire()
+        print('%s 拿到了B锁' % self.name)
+        time.sleep(7)
+
+        mutexA.acquire()
+        print('%s 拿到了A锁' % self.name)
+        mutexA.release()
+
+        mutexB.release()
+
+if __name__ == '__main__':
+    for i in range(10):
+        t=MyThread()
+        t.start()
+
+----------------------------------------------------信号量
+作用：限制同一时间内并发（看起来同时运行）的线程个数，
+假如很多个线程都是做io操作，同一时间全在做io操作把机器卡死，做个限制就能好点
+from threading import Thread,Semaphore,currentThread
+import time,random
+
+sm=Semaphore(3)
+
+def task():
+    # sm.acquire()
+    # print('%s in' %currentThread().getName())
+    # sm.release()
+    with sm:  #等同于上面的写法
+        print('%s in' %currentThread().getName())
+        time.sleep(random.randint(1,3))
+
+
+if __name__ == '__main__':
+    for i in range(10):
+        t=Thread(target=task)
+        t.start()
+
+
+----------------------------------------------   Event事件
+
+
+
+from threading import Thread,Event
+import time
+
+event=Event()
+# event.wait()  #等待  可设置时间，超过时间直接跳过wait
+# event.set()   #解除等待
+# event.is_set()  #是否被set()
+
+def student(name):
+    print('学生%s 正在听课' %name)
+    event.wait(2)
+    print('学生%s 课间活动' %name)
+
+
+def teacher(name):
+    print('老师%s 正在授课' %name)
+    time.sleep(7)
+    event.set()
+
+
+if __name__ == '__main__':
+    stu1=Thread(target=student,args=('alex',))
+    stu2=Thread(target=student,args=('wxx',))
+    stu3=Thread(target=student,args=('yxx',))
+    t1=Thread(target=teacher,args=('egon',))
+
+    stu1.start()
+    stu2.start()
+    stu3.start()
+    t1.start()
+
+---------------------------------Event事件的标准用法
+应该在循环中wait(0.5),设定时间
+设定循环的次数
+
+from threading import Thread,Event,currentThread
+import time
+
+event=Event()
+
+def conn():
+    n=0
+    while not event.is_set():
+        if n == 3:
+            print('%s try too many times' %currentThread().getName())
+            return
+        print('%s try %s' %(currentThread().getName(),n))
+        event.wait(0.5)
+        n+=1
+
+    print('%s is connected' %currentThread().getName())
+
+
+def check():
+    print('%s is checking' %currentThread().getName())
+    time.sleep(5)
+    event.set()
+
+
+if __name__ == '__main__':
+    for i in range(3):
+        t=Thread(target=conn)
+        t.start()
+    t=Thread(target=check)
+    t.start()
+
+
+
+---------------------------------------------------------Timer计时器
+# from threading import Timer
+#
+# def task(name):
+#     print('hello %s' %name)
+#
+#
+# t=Timer(5,task,args=('egon',))
+# t.start()
+
+
+-----------------------------------------------（线程的）queue  同一进程里的线程
+//注意区分和  from multiprocessing import Queue 的区别
+//
+queue不能实现进程间的通信，Queue可以
+Queue允许多个进程同时操作一个队列
+
+import queue
+
+q=queue.Queue(3) #先进先出->队列
+
+q.put('first')
+q.put(2)
+q.put('third')
+# q.put(4)
+# q.put(4,block=False) #q.put_nowait(4)
+# q.put(4,block=True,timeout=3)
+
+
+#
+print(q.get())
+print(q.get())
+print(q.get())
+# print(q.get(block=False)) #q.get_nowait()
+# print(q.get_nowait())
+
+# print(q.get(block=True,timeout=3))
+
+
+q=queue.LifoQueue(3) #后进先出->堆栈
+q.put('first')
+q.put(2)
+q.put('third')
+
+print(q.get())
+print(q.get())
+print(q.get())
+
+
+q=queue.PriorityQueue(3) #优先级队列
+
+q.put((10,'one'))
+q.put((40,'two'))
+q.put((30,'three'))
+
+print(q.get())
+print(q.get())
+print(q.get())
+
+
+
+------------------------------------------------------------------------进程池/线程池
+利用线程池实现上述套接字通讯，控制并发线程的个数。
+
+---进程池
+from concurrent.futures import ProcessPoolExecutor,ThreadPoolExecutor
+import os,time,random
+
+def task(name):
+    print('name:%s pid:%s run' %(name,os.getpid()))
+    time.sleep(random.randint(1,3))
+
+
+if __name__ == '__main__':
+    # pool=ProcessPoolExecutor(4)
+    pool=ThreadPoolExecutor(5)
+
+    for i in range(10):
+        pool.submit(task,'egon%s' %i)
+
+    pool.shutdown(wait=True)
+
+
+    print('主')
+
+------------------------------线程池
+from concurrent.futures import ProcessPoolExecutor,ThreadPoolExecutor
+from threading import currentThread
+import os,time,random
+
+def task():
+    print('name:%s pid:%s run' %(currentThread().getName(),os.getpid()))
+    time.sleep(random.randint(1,3))
+
+
+if __name__ == '__main__':
+    pool=ThreadPoolExecutor(5)
+
+    for i in range(10):
+        pool.submit(task,)
+
+    pool.shutdown(wait=True)  # 默认 wait=True  相当于等池里的线程运行完在执行下一行
+
+
+    print('主')
+
+
+
+
+----------------------------------------------------------
+提交任务的两种方式
+1、同步调用:提交完任务后，就在原地等待任务执行完毕，拿到结果，再执行下一行代码,导致程序是串行执行
+
+from concurrent.futures import ThreadPoolExecutor
+import time
+import random
+
+def la(name):
+    print('%s is laing' %name)
+    time.sleep(random.randint(3,5))
+    res=random.randint(7,13)*'#'
+    return {'name':name,'res':res}
+
+def weigh(shit):
+    name=shit['name']
+    size=len(shit['res'])
+    print('%s 拉了 《%s》kg' %(name,size))
+
+
+if __name__ == '__main__':
+    pool=ThreadPoolExecutor(13)
+
+    shit1=pool.submit(la,'alex').result()
+    weigh(shit1)
+
+    shit2=pool.submit(la,'wupeiqi').result()
+    weigh(shit2)
+
+    shit3=pool.submit(la,'yuanhao').result()
+    weigh(shit3)
+
+
+#2--------------------- 异步调用
+、异步调用：提交完任务后，不地等待任务执行完毕，
+
+from concurrent.futures import ThreadPoolExecutor
+import time
+import random
+
+def la(name):
+    print('%s is laing' %name)
+    time.sleep(random.randint(3,5))
+    res=random.randint(7,13)*'#'
+    return {'name':name,'res':res}
+
+
+def weigh(shit):
+    shit=shit.result()
+    name=shit['name']
+    size=len(shit['res'])
+    print('%s 拉了 《%s》kg' %(name,size))
+
+
+if __name__ == '__main__':
+    pool=ThreadPoolExecutor(13)
+
+    pool.submit(la,'alex').add_done_callback(weigh)
+
+    pool.submit(la,'wupeiqi').add_done_callback(weigh)
+
+    pool.submit(la,'yuanhao').add_done_callback(weigh)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
