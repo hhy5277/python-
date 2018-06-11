@@ -1,0 +1,56 @@
+同一线程下实现并发的效果
+
+
+-------------------------------------------------greenlet
+#pip3 install greenlet
+from greenlet import greenlet
+import time
+
+def eat(name):
+    print('%s eat 1' %name)
+    time.sleep(10)
+    g2.switch('egon')
+    print('%s eat 2' %name)
+    g2.switch()
+
+def play(name):
+    print('%s play 1' %name )
+    g1.switch()
+    print('%s play 2' %name )
+
+
+g1=greenlet(eat)
+g2=greenlet(play)
+
+g1.switch('egon')
+-----------------------------------------------------------  gevent
+from gevent import monkey;monkey.patch_all()
+import gevent
+import time
+
+
+def eat(name):
+    print('%s eat 1' % name)
+    # gevent.sleep(3)
+    time.sleep(3)
+    print('%s eat 2' % name)
+
+
+def play(name):
+    print('%s play 1' % name)
+        # gevent.sleep(3)
+    time.sleep(4)
+    print('%s play 2' % name)
+
+
+start_time=time.time()
+g1=gevent.spawn(eat,'egon')
+g2=gevent.spawn(play,'alex')
+
+#### gevent.spawn()提交事件是异步提交 提交完主线程就执行完了
+#### 必须join()等待异步事件全部执行完成。
+#### 或者用 gevent.joinall([g1,g2])
+g1.join()
+g2.join()
+stop_time=time.time()
+print(stop_time-start_time)

@@ -1,0 +1,155 @@
+#1、查询所有的课程的名称以及对应的任课老师姓名（内联表）
+select course.cname,teacher.tname from course inner join teacher on course.teacher_id = teacher.tid;
+
+
+#2、查询学生表中男女生各有多少人
+ select gender as xinbie,count(sid) as renshu from student group by gender;
+
+ select gender xinbie,count(2) renshu from student group by gender;
+
+
+
+#3、查询物理成绩等于100的学生的姓名
+select student_id from score inner join course on score.course_id = course.cid where cname ='物理' and num=100; //先查询sid
+
+select sname from student where sid in (select student_id from score inner join course on score.course_id = course.cid where cname ='物理' and num=100); //再通过sid查询学生姓名
+
+
+#4、查询平均成绩大于八十分的同学的姓名和平均成绩
+(select student_id,avg(num) as avg_num from  score group by student_id having avg(num)>80) as t1;
+再把t1表和student表通过学生id内联
+最后答案：
+select student.sname,t1.avg_num from student inner join (select student_id,avg(num) as avg_num from  score group by student_id having avg(num)>80) as t1 on student.sid =t1.student_id;
+
+
+#5、查询所有学生的学号，姓名，选课数，总成绩(注意：对于那些没有选修任何课程的学生也算在内)
+
+
+先在score表中选出一下字段作为t1表
+(select student_id, count(course_id) as course_num, sum(num) as total_num from score group by student_id) as t1
+再把学生表和t1表进行left join
+
+最后答案：
+select student.sid,student.sname,t1.course_num,t1.total_num from student left join (select student_id, count(course_id) as course_num, sum(num) as total_num from score group by student_id) as t1 on student.sid = t1.student_id;
+
+#6、 查询姓李老师的个数
+select count(tid) from teacher where tname like '李%';
+
+##7、 查询没有报李平老师课的学生姓名(找出报名李平老师课程的学生，然后取反就可以)
+首先课程表和老师表根据course.teacher_id = teacher.tid内联 找出teacher.tname = '李平老师'的 course.cid
+
+select course.cid from course inner join teacher on course.teacher_id =teacher.tid where teacher.tname ='李平老师'
+
+然后在score表中找出couser_id in couser.cid的student_id;
+select distinct student_id from score where course_id in (select course.cid from course inner join teacher on course.teacher_id =teacher.tid where teacher.tname ='李平老师');
+
+需要distinct去重，比如李平老师教了两门课，刚好a学生都选了，则a学生会被选中两次
+然后再在学生表里选出不在student_id的学生名字
+
+最后答案：
+select sname from student where sid not in (select distinct student_id from score where course_id in (select course.cid from course inner join teacher on course.teacher_id =teacher.tid where teacher.tname ='李平老师'));
+
+
+
+#8、 查询物理课程比生物课程高的学生的学号(分别得到物理成绩表与生物成绩表，然后连表即可)
+
+1首先在course表获得物理课程cid
+select cid from course where cname = '物理'
+2再在score表中获取 course_id ==cid是物理的student_id和num 作为t1表
+select student_id,num from score where course_id =(select cid from course where cname = '物理') as t1
+同理获取生物成绩表
+select student_id,num from score where course_id =(select cid from course where cname = '生物') as t2
+再连表
+select t1.student_id from 
+(select student_id,num from score where course_id =(select cid from course where cname = '物理') ) as t1
+inner join
+(select student_id,num from score where course_id =(select cid from course where cname = '生物') ) as t2
+on t1.student_id = t2.student_id where t1.num > t2.num;
+
+
+
+#9、 查询没有同时选修物理课程和体育课程的学生姓名(没有同时选修指的是选修了一门的，思路是得到物理+体育课程的学生信息表，然后基于学生分组，统计count(课程)=1)
+首先获取物理和体育课程的cid
+select cid from course where cname = '物理' or cname = '体育'
+然后在从score表中找出course_id 在cid中的学生id 并按student_id分组 count(course_id)过滤的student_id
+select student_id from score where course_id in (select cid from course where cname = '物理' or cname = '体育') group by student_id having count(course_id)=1
+
+最后在student表中找出学生姓名
+select student.sname from student where sid in (select student_id from score where course_id in (select cid from course where cname = '物理' or cname = '体育') group by student_id having count(course_id)=1);
+
+
+
+#10、查询挂科超过两门(包括两门)的学生姓名和班级(求出<60的表，然后对学生进行分组，统计课程数目>=2)
+首先从score表中找出挂了两门的学生id 作为t表
+select student_id from score where num <60 group by student_id having count(course_id)>=2
+
+然后连接student,t1,class三个表 
+select * from student inner join (select student_id from score where num <60 group by student_id having count(course_id)>=2) as t1 inner join class
+
+最后答案：
+select student.sname,class.caption 
+from student inner join (select student_id from score where num <60 group by student_id having count(course_id)>=2) as t1 inner join class 
+on t1.student_id =student.sid and student.class_id =class.cid;
+
+
+#11、查询选修了所有课程的学生姓名(先从course表统计课程的总数，然后基于score表按照student_id分组，统计课程数据等于课程总数即可)
+首先从score表中找出课程数=全部课程的student_id
+
+select student_id from score group by  student_id having count(course_id) = (select  count(cid) from course)
+最后从studen表里找出这些student_id的sname
+select student.sname from student where sid in 
+(select student_id from score group by  student_id having count(course_id) = (select  count(cid) from course));
+
+
+#12、查询李平老师教的课程的所有成绩记录
+首先找出李平老师所教的课程id
+select cid from course inner join teacher on course.teacher_id =teacher.tid where
+teacher.tname = '李平老师'
+在从score表中找出这些cid的项
+select * from score where course_id in
+(select cid from course inner join teacher on course.teacher_id =teacher.tid where
+teacher.tname = '李平老师');
+
+#13、查询全部学生都选修了的课程号和课程名(取所有学生数，然后基于score表的课程分组，找出count(student_id)等于学生数即可)
+学生数：select count(sid) from student
+先从score表中按course_id分组找出学生数=等于总人数的course_id的cid
+select course_id from score group by course_id having count(student_id)=
+(select count(sid) from student)
+然后在从course中找出这些cid对应的cid和cname
+select cid,cname from course where cid in 
+(select course_id from score group by course_id having count(student_id)=
+(select count(sid) from student));
+
+
+#14、查询每门课程被选修的次数
+select course_id,count(student_id) as student_num from score group by course_id;
+
+#15、查询只选修了一门课程的学生姓名和学号
+只选修了一门课程的学生id:
+select student_id from score group by student_id having count(course_id) = 1
+再从student表里找出对应的sid和sname
+select sid,sname from student where sid in (select student_id from score group by student_id having count(course_id) = 1);
+
+#16、查询所有学生考出的成绩并按从高到低排序（成绩去重）
+select distinct num from score order by num desc;
+
+#17、查询平均成绩大于85的学生姓名和平均成绩
+select sname, t1.avg_num from
+    student inner join (
+    select
+        student_id,
+        avg(num) avg_num
+    from
+        score
+    group by
+        student_id
+   having
+        avg(num) > 85
+) as t1 on student.sid = t1.student_id;
+
+#18、查询生物成绩不及格的学生姓名和对应生物分数
+select sname 姓名, num 生物成绩 from  score
+left join  course on score.course_id = course.cid
+left join  student on score.student_id = student.sid
+where  course.cname = '生物' and score.num < 60;
+
